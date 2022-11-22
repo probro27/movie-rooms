@@ -6,7 +6,7 @@ type PopularityData = {
     results: [MovieInList] | 'not found'
 }
 
-export default function handler(req: NextApiRequest, res: NextApiResponse<PopularityData>) {
+export default function popularHandler(req: NextApiRequest, res: NextApiResponse<PopularityData>) {
     axios.get(`https://api.themoviedb.org/3/movie/popular?api_key=${process.env.API_KEY}`)
         .then((_res) => {
             res.send(_res.data);

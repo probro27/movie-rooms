@@ -8,55 +8,81 @@ const configuration: Configuration = new Configuration({
 
 const openai: OpenAIApi = new OpenAIApi(configuration);
 
-type RecommendationResults = [Movie?] | MovieNotFound
+type RecommendationResults = MovieInList[] | MovieNotFound
 
-export default function handler(req: NextApiRequest, res: NextApiResponse<RecommendationResults>) {
-    let likedMovies: [string?] = req.body.likedMovies;
-    let dislikedMovies: [string?] = req.body.dislikedMovies;
-    let recommendedMovieList: [string?] = getMovieListOpenAI(likedMovies, dislikedMovies);
-    if (!recommendedMovieList) {
+export default async function recommendationHandler(req: NextApiRequest, res: NextApiResponse<RecommendationResults>) {
+    let likedMovies: string[] = req.body.likedMovies;
+    let dislikedMovies: string[] = req.body.dislikedMovies;
+    let recommendedMovieList: string[] = await getMovieListOpenAI(likedMovies, dislikedMovies);
+    if (recommendedMovieList.length == 0) {
         return res.status(401).send({ 'notFound': true });
     } else {
-        let finalRecommendationList: [Movie?] = [];
+        console.log('We have recommended movies');
+        let finalRecommendationList: MovieInList[] = [];
         for(let movie in recommendedMovieList) {
-            let searchedMovie: [MovieInList?] = []
-            axios.post('/api/movie/search', {
-                search: movie
-            })
+            console.log(recommendedMovieList[movie]);
+            let searchedMovie: MovieInList[] = []
+            const searchKeywords: string = recommendedMovieList[movie].trim();
+            const encodedSearchKeywords = encodeURIComponent(searchKeywords);
+            await axios.get(`https://api.themoviedb.org/3/search/movie?query=${encodedSearchKeywords}&api_key=${process.env.API_KEY}`)
                 .then((_res) => {
-                    searchedMovie = _res.data;
+                    console.log(`${searchKeywords} pushed`);
+                    searchedMovie.push(_res.data);
                 })
-                .catch((_error) => {
-                    console.log(_error);
+                .catch((error: AxiosError) => {
+                    console.log(`${searchKeywords} not pushed`);
+                    console.log(error);
+                    return res.status(404).send({ 'notFound': true });
                 });
-            if(searchedMovie) {
-                const movieId = searchedMovie[0]?.id;
-                axios.get(`/api/movie/${movieId}`)
-                    .then((_res) => finalRecommendationList.push(_res.data))
-                    .catch((_error) => console.log(_error));
+            if(searchedMovie.length != 0) {
+                console.log(`${searchedMovie[0].title} given as final recommendation`);
+                finalRecommendationList.push(searchedMovie[0]);
             }
         }
-        if(finalRecommendationList != undefined) {
+        if(finalRecommendationList.length != 0) {
             return res.status(201).send(finalRecommendationList);
         } else {
+            console.log(`length is 0`);
             return res.status(404).send({ 'notFound': true });
         }
     }
 }
 
-function getMovieListOpenAI(moviesLiked: [string?], moviesDisliked: [string?]): [string?] {
-    let recommendedMovieList: [string?] = []
-    const prompt = `Recommend me movies that are not mentioned in this prompt: I like ${moviesLiked} and I don't like ${moviesDisliked}`;
-    const completion =  openai.createCompletion({
+async function getMovieListOpenAI(moviesLiked: string[], moviesDisliked: string[]): Promise<string[]> {
+    let recommendedMovieList: string[] = []
+    const prompt = `Recommend me list of movies that are not mentioned in this prompt: I like ${moviesLiked} and I don't like ${moviesDisliked}`;
+    const completion = await openai.createCompletion({
         model: "text-davinci-002",
         prompt: prompt,
-        temperature: 0.8,
+        temperature: 0.4,
         max_tokens: 256,
         top_p: 1,
         frequency_penalty: 2,
         presence_penalty: 0,
         best_of: 1
     });
-    console.log(completion);
+    console.log(`Actual text: ${completion.data.choices[0].text}`);
+    let text = completion.data.choices[0].text;
+    if(!text) {
+        return recommendedMovieList;
+    } else {
+        let recommendedMovieListCopy: string[] = [];
+        text = text.trimEnd();
+        const re = new RegExp('\n[0-9]. |\n-|,')
+        recommendedMovieListCopy = text.split(re);
+        console.log(recommendedMovieListCopy);
+        
+        for (let j = 1; j < recommendedMovieListCopy.length; j++) {
+            let recommendedMovie = recommendedMovieListCopy[j];
+            console.log(recommendedMovie);
+            recommendedMovieList.push(recommendedMovie.trim());
+        }
+    }
+    // recommendedMovieList = completion.data.choices[0].text?.trim().split(',') ??  [];
+    // if (recommendedMovieList.length == 1) {
+    //     recommendedMovieList = completion.data.choices[0].text?.trim().split('\n-') ?? [];
+    // }
+    console.log(`Final list: ${recommendedMovieList}`);
+    console.log(`Final list element: ${recommendedMovieList[0]}`)
     return recommendedMovieList;
 }

@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios';
 
 type SearchResults = [MovieInList]
 
-export default function handler(req: NextApiRequest, res: NextApiResponse<SearchResults | MovieNotFound>) {
+export default function searchHandler(req: NextApiRequest, res: NextApiResponse<SearchResults | MovieNotFound>) {
     if(req.method == 'POST') {
         const searchKeywords: string = req.body.search;
         const encodedSearchKeywords = encodeURIComponent(searchKeywords);
