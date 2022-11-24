@@ -78,10 +78,6 @@ async function getMovieListOpenAI(moviesLiked: string[], moviesDisliked: string[
             recommendedMovieList.push(recommendedMovie.trim());
         }
     }
-    // recommendedMovieList = completion.data.choices[0].text?.trim().split(',') ??  [];
-    // if (recommendedMovieList.length == 1) {
-    //     recommendedMovieList = completion.data.choices[0].text?.trim().split('\n-') ?? [];
-    // }
     console.log(`Final list: ${recommendedMovieList}`);
     console.log(`Final list element: ${recommendedMovieList[0]}`)
     return recommendedMovieList;
