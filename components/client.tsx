@@ -17,7 +17,7 @@ export default function Client() {
     const socketInitializer = async () => {
         fetch('/api/socket/socket');
         socket = io();
-
+        console.log(socket);
         socket.on('connect', () => {
             console.log('connected');
         });

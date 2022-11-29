@@ -14,15 +14,20 @@ export default function RoomHome() {
         socketInitializer()
     }, []);
 
-    const socketInitializer = () => {
-        fetch('/api/socket/socket');
-        let socket = io();
+    const socketInitializer = async () => {
+        await fetch('/api/socket/socket');
+        socket = io();
+        console.log(socket);
         socket.on('connect', () => {
             console.log('connected');
         });
 
         socket.on('set-session-acknowledgement', (data) => {
             sessionStorage.setItem('sessionId', data.sessionId);
+        });
+
+        socket.on('redirect', (destination) => {
+            window.location.href = destination;
         });
         
         let session_id;
