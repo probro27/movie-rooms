@@ -67,7 +67,7 @@ export default function Client() {
                     Submit
                 </button>
             </form> 
-        <p>Go to room: <Link href={ `/rooms/${message}` }>{message}</Link></p>
+        <p>Go to room: <Link href={ `/rooms/${message}/movies` }>{message}</Link></p>
         </div>
     )
 }

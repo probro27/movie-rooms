@@ -9,7 +9,7 @@ type PopularityData = {
 export default function popularHandler(req: NextApiRequest, res: NextApiResponse<PopularityData>) {
     axios.get(`https://api.themoviedb.org/3/movie/popular?api_key=${process.env.API_KEY}`)
         .then((_res) => {
-            res.send(_res.data);
+            res.send(_res.data.results);
         })
         .catch((_error: AxiosError) => {
             console.log(_error);

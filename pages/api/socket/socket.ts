@@ -65,7 +65,7 @@ export default function SocketHandler(req: NextApiRequest, res: NextApiResponseW
             socket.on('leave-room', (roomName: string) => {
                 console.log(`Request to leave room: ${roomName}`);
                 socket.leave(roomName);
-                let destination = '/';
+                let destination = '';
                 socket.broadcast.emit('redirect', destination);
             }) 
         });

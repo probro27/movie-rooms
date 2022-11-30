@@ -1,17 +1,29 @@
 import { useRouter } from "next/router"
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import io from 'socket.io-client';
 import type { Socket } from 'socket.io-client';
+import axios from "axios";
 
 let socket: Socket | undefined
 
+interface Res {
+    data:[MovieInList]
+}
+
 export default function RoomHome() {
     const router = useRouter();
+    const [ movies, setMovies ] = useState({} as Res);
 
     const { id } = router.query;
 
     useEffect(() => {
         socketInitializer()
+        axios.get('/api/movies/popular')
+            .then((response) => {
+                console.log(response)
+                setMovies(response);
+            })
+            .catch((error) => console.log(error));
     }, []);
 
     const socketInitializer = async () => {
@@ -41,6 +53,7 @@ export default function RoomHome() {
             session_id = data; // connecting nth time
             socket.emit('start-session', { sessionId: session_id });
         }
+
     }
     
     const leaveRoomHandler = (e: React.SyntheticEvent) => {
@@ -53,7 +66,14 @@ export default function RoomHome() {
     }
     return (
         <div>
-            <p>Welcome to room {id}</p>
+            <p>Welcome to Movie room {id}</p>
+            {
+                movies.data ?
+                    Array.from(movies.data).map((element) => {
+                        return <p key="1">{element.title}</p>
+                    })
+                : null
+            }
             <button onClick={leaveRoomHandler}>
                 Leave room
             </button>

@@ -7,7 +7,7 @@ type PopularityData = {
 }
 
 export default function latestHandler(req: NextApiRequest, res: NextApiResponse<PopularityData>) {
-    axios.get(`https://api.themoviedb.org/3/movie/lar?api_key=${process.env.API_KEY}`)
+    axios.get(`https://api.themoviedb.org/3/movie/latest?api_key=${process.env.API_KEY}`)
         .then((_res) => {
             res.send(_res.data);
         })
