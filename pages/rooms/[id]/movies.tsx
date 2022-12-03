@@ -2,7 +2,8 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react";
 import io from 'socket.io-client';
 import type { Socket } from 'socket.io-client';
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
+import MovieItem from "../../../components/MovieItem";
 
 let socket: Socket | undefined
 
@@ -13,15 +14,20 @@ interface Res {
 export default function RoomHome() {
     const router = useRouter();
     const [ movies, setMovies ] = useState({} as Res);
+    const [ page, setPage ] = useState(0);
+    const [ response, setResponse ] = useState({'page': 1} as PopularityData)
 
     const { id } = router.query;
 
     useEffect(() => {
         socketInitializer()
         axios.get('/api/movies/popular')
-            .then((response) => {
+            .then((response: AxiosResponse<PopularityData>) => {
                 console.log(response)
-                setMovies(response);
+                if (response.data.results != 'not found') {
+                    setMovies({ 'data': response.data.results });
+                    setPage(response.data.page);
+                }
             })
             .catch((error) => console.log(error));
     }, []);
@@ -70,7 +76,7 @@ export default function RoomHome() {
             {
                 movies.data ?
                     Array.from(movies.data).map((element) => {
-                        return <p key="1">{element.title}</p>
+                        return <MovieItem key={1} movie={element} />
                     })
                 : null
             }

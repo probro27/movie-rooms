@@ -69,3 +69,8 @@ type Movie = {
 type MovieNotFound = {
     notFound: boolean
 }
+
+type PopularityData = {
+    page: number,
+    results: [MovieInList] | 'not found'
+}

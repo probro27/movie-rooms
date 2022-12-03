@@ -60,12 +60,12 @@ export default function SocketHandler(req: NextApiRequest, res: NextApiResponseW
                     console.log(`Request to create room: ${roomName} received!`);
                 }
                 socket.join(roomName);
-                socket.broadcast.emit('update-input', roomName);
+                socket.broadcast.emit('redirect', `/rooms/${roomName}/movies`);
             });
             socket.on('leave-room', (roomName: string) => {
                 console.log(`Request to leave room: ${roomName}`);
                 socket.leave(roomName);
-                let destination = '';
+                let destination = '/';
                 socket.broadcast.emit('redirect', destination);
             }) 
         });
