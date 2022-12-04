@@ -4,6 +4,7 @@ import io from 'socket.io-client';
 import type { Socket } from 'socket.io-client';
 import axios, { AxiosResponse } from "axios";
 import MovieItem from "../../../components/MovieItem";
+import styles from '../../../styles/Home.module.css';
 
 let socket: Socket | undefined
 
@@ -12,10 +13,10 @@ interface Res {
 }
 
 export default function RoomHome() {
+    let posterPath = 'https://image.tmdb.org/t/p/w185';
     const router = useRouter();
     const [ movies, setMovies ] = useState({} as Res);
     const [ page, setPage ] = useState(0);
-    const [ response, setResponse ] = useState({'page': 1} as PopularityData)
 
     const { id } = router.query;
 
@@ -71,15 +72,17 @@ export default function RoomHome() {
             console.log('socket undefined');
     }
     return (
-        <div>
+        <div className={styles.container}>
             <p>Welcome to Movie room {id}</p>
-            {
-                movies.data ?
-                    Array.from(movies.data).map((element) => {
-                        return <MovieItem key={1} movie={element} />
-                    })
-                : null
-            }
+            <div className="grid grid-cols-6 gap-4">
+                {
+                    movies.data ?
+                        Array.from(movies.data).map((element) => {
+                            return <MovieItem key={1} movie={element} />
+                        })
+                    : null
+                }
+            </div>
             <button onClick={leaveRoomHandler}>
                 Leave room
             </button>
