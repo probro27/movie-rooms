@@ -5,6 +5,9 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    colors: {
+      'netflix': '#E50914'
+    },
     extend: {},
   },
   plugins: [
