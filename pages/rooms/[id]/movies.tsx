@@ -72,16 +72,18 @@ export default function RoomHome() {
             console.log('socket undefined');
     }
     return (
-        <div className={styles.container}>
+        <div className={`{styles.container} bg-scroll bg-center bg-cover bg-slate-800`}>
             <p>Welcome to Movie room {id}</p>
-            <div className="grid grid-cols-6 gap-4">
-                {
-                    movies.data ?
-                        Array.from(movies.data).map((element) => {
-                            return <MovieItem key={1} movie={element} />
-                        })
-                    : null
-                }
+            <div className={styles.main}>
+                <div className="grid grid-cols-8 gap-2">
+                    {
+                        movies.data ?
+                            Array.from(movies.data).map((element) => {
+                                return <MovieItem key={movies.data.findIndex((x) => x == element)} movie={element} />
+                            })
+                        : null
+                    }
+                </div>
             </div>
             <button onClick={leaveRoomHandler}>
                 Leave room

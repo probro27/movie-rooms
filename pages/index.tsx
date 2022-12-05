@@ -8,6 +8,20 @@ export default function Home() {
   const [displayForm, setDisplayForm] = useState(false);
   let vidRef: React.RefObject<HTMLVideoElement> = React.createRef();
   
+  // Trying to add double click skip video functionality (not working at the moment)
+  useEffect(() => {
+    if (vidRef.current) {
+      vidRef.current.addEventListener('click', () => {
+        console.log('Video double clicked, time to skip');
+        if(vidRef.current) {
+          vidRef.current.pause();
+          vidRef.current.playbackRate = 10;
+          vidRef.current.play();
+        }
+      })
+    }
+  });
+
   const onVideoEnd = () => {
     setDisplayForm(true);
     if(vidRef.current) {

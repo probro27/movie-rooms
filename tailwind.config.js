@@ -5,10 +5,11 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    colors: {
-      'netflix': '#E50914'
+    extend: {
+      colors: {
+        'netflix': '#E50914'
+      },
     },
-    extend: {},
   },
   plugins: [
     require('@tailwindcss/forms')
