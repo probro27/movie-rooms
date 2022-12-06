@@ -5,8 +5,17 @@ import type { Socket } from 'socket.io-client';
 import axios, { AxiosResponse } from "axios";
 import MovieItem from "../../../components/MovieItem";
 import styles from '../../../styles/Home.module.css';
+import { useAppContext } from '../../../context/state';
 
-let socket: Socket | undefined
+interface ISocket extends Socket {
+    data?: {
+        likedMovies: string[]
+        dislikedMovies: string[]
+        recommendedMovies: string[]
+    }
+}
+
+let socket: ISocket | undefined
 
 interface Res {
     data:[MovieInList]
@@ -17,7 +26,7 @@ export default function RoomHome() {
     const router = useRouter();
     const [ movies, setMovies ] = useState({} as Res);
     const [ page, setPage ] = useState(0);
-
+    let { likedMovies, dislikedMovies } = useAppContext();
     const { id } = router.query;
 
     useEffect(() => {
@@ -45,6 +54,10 @@ export default function RoomHome() {
             sessionStorage.setItem('sessionId', data.sessionId);
         });
 
+        socket.on('message', (msg) => {
+            console.log(`Message from server: ${msg}`);
+        })
+
         socket.on('redirect', (destination) => {
             window.location.href = destination;
         });
@@ -62,6 +75,25 @@ export default function RoomHome() {
         }
 
     }
+
+    const getRecommendationsHandler = (e: React.SyntheticEvent) => {
+        e.preventDefault();
+        console.log(`Get recommendations clicked!!!`);
+        if (socket) {
+            console.log('socket exists!!');
+            socket.data = {
+                likedMovies: likedMovies,
+                dislikedMovies: dislikedMovies,
+                recommendedMovies: []
+            }
+            console.log('socket.data assigned');
+            console.error(`recommendation event emmitted with ${id}`)
+            socket.emit('get-recommendation', id);
+        } else {
+            console.log('socket undefined');
+            console.log(socket);
+        }
+    };
     
     const leaveRoomHandler = (e: React.SyntheticEvent) => {
         e.preventDefault();
@@ -85,6 +117,9 @@ export default function RoomHome() {
                     }
                 </div>
             </div>
+            <button onClick={getRecommendationsHandler}>
+                Get Recommendations
+            </button>
             <button onClick={leaveRoomHandler}>
                 Leave room
             </button>

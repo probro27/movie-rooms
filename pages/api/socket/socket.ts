@@ -31,6 +31,7 @@ export default function SocketHandler(req: NextApiRequest, res: NextApiResponseW
         res.socket.server.io = io;
 
         io.on('connection', (socket: ISocket) => {
+            socket.data
             socket.on('start-session', function(data) {
                 console.log('===================start-session event=================');
                 console.log(data);
@@ -68,6 +69,27 @@ export default function SocketHandler(req: NextApiRequest, res: NextApiResponseW
                 let destination = '/';
                 socket.broadcast.emit('redirect', destination);
             }) 
+            socket.on('get-recommendation',  async (currentRoom: string) => {
+                console.log('We are here to check for recomemndations')
+                const sockets = await io.in(currentRoom).fetchSockets()
+                    // .then((sockets) => {
+                console.log('We got sockets!!');
+                let getRecommendations = true;
+                sockets.forEach((socket) => {
+                    if (socket.data.likedMovies != null || socket.data.dislikedMovies != null) {
+                        getRecommendations = getRecommendations && true;
+                    } else {
+                        getRecommendations = getRecommendations && false;
+                    }
+                })
+                console.log(`Do we give recommendations: ${getRecommendations}`)
+                if (getRecommendations == true) {
+                    socket.broadcast.emit('message', 'We should be ready to proceed!!');
+                } else {
+                    socket.broadcast.emit('message', 'Please wait for others to finish!!');
+                }
+                    // });
+            })
         });
     }
     res.end();

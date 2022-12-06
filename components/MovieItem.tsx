@@ -14,15 +14,9 @@ export default function MovieItem({ key, movie }: Props) {
     let dislikeRef = useRef<SVGSVGElement | null>(null);
 
     const likeButtonClickHandler = (event: React.SyntheticEvent) => {
-        console.warn('Like Button clicked');
         let element = event.target as HTMLDivElement
         let movieTitle = element.getAttribute('data-movie-title');
-        console.log('Movie Title: ' + movieTitle);
         if (movieTitle != null) {
-            console.log(likedMovies);
-            console.log(likedMovies.findIndex((element) =>  {
-                return element === movieTitle?.trim()
-            }) );
             if (likedMovies.findIndex((element) =>  {
                 return element == movieTitle
             }) != -1) {
@@ -30,17 +24,48 @@ export default function MovieItem({ key, movie }: Props) {
                     x != movieTitle
                 })
                 likeRef.current?.setAttribute('fill', 'none');
-                console.error('Removed from liked list');
             } else {
                 likedMovies = [...likedMovies, movieTitle];
-                console.log(likedMovies);
                 if (likeRef.current) {
                     likeRef.current.setAttribute('fill', 'green');
-                    if (movieTitle in dislikedMovies) {
+                    if (dislikedMovies.findIndex((element) =>  {
+                        return element == movieTitle
+                        }) != -1) {
                         dislikedMovies = dislikedMovies.filter((x) => {
                             x != movieTitle
                         })
                         dislikeRef.current?.setAttribute('fill', 'none');
+                    }
+                }   
+            }
+            element.setAttribute('data-movie-title', movieTitle);
+        } else {
+            console.log('Movie title undefined -- why???');
+        }
+    }
+
+    const dislikeButtonClickHandler = (event: React.SyntheticEvent) => {
+        let element = event.target as HTMLDivElement
+        let movieTitle = element.getAttribute('data-movie-title');
+        if (movieTitle != null) {
+            if (dislikedMovies.findIndex((element) =>  {
+                return element == movieTitle
+            }) != -1) {
+                dislikedMovies = dislikedMovies.filter((x) => {
+                    x != movieTitle
+                })
+                dislikeRef.current?.setAttribute('fill', 'none');
+            } else {
+                dislikedMovies = [...dislikedMovies, movieTitle];
+                if (dislikeRef.current) {
+                    dislikeRef.current.setAttribute('fill', 'red');
+                    if (likedMovies.findIndex((element) =>  {
+                        return element == movieTitle
+                    }) != -1) {
+                        likedMovies = likedMovies.filter((x) => {
+                            x != movieTitle
+                        })
+                        likeRef.current?.setAttribute('fill', 'none');
                     }
                 }   
             }
@@ -68,22 +93,22 @@ export default function MovieItem({ key, movie }: Props) {
                 </div>
             </div>
             <div id="likes-and-dislikes" className="flex flex-row gap-2 my-2">
-                <div className="border border-green-500 px-8 py-1 rounded-md hover:shadow-md hover:shadow-green-200"
+                <div className="border border-green-500 px-8 py-1 rounded-md hover:shadow-md hover:shadow-green-200 hover:cursor-pointer"
                     data-movie-title={movie.title}
                     onClick={likeButtonClickHandler}
+                    
                 >
-                    <div>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6" ref={likeRef}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" />
-                        </svg>
-                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6" ref={likeRef} data-movie-title={movie.title}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" />
+                    </svg>
                 </div>
-                <div className="border border-rose-500 px-8 py-1 rounded-md hover:shadow-md hover:shadow-rose-200">
-                    <div>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 15h2.25m8.024-9.75c.011.05.028.1.052.148.591 1.2.924 2.55.924 3.977a8.96 8.96 0 01-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398C20.613 14.547 19.833 15 19 15h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 00.303-.54m.023-8.25H16.48a4.5 4.5 0 01-1.423-.23l-3.114-1.04a4.5 4.5 0 00-1.423-.23H6.504c-.618 0-1.217.247-1.605.729A11.95 11.95 0 002.25 12c0 .434.023.863.068 1.285C2.427 14.306 3.346 15 4.372 15h3.126c.618 0 .991.724.725 1.282A7.471 7.471 0 007.5 19.5a2.25 2.25 0 002.25 2.25.75.75 0 00.75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 002.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384" />
-                        </svg>
-                    </div>
+                <div className="border border-rose-500 px-8 py-1 rounded-md hover:shadow-md hover:shadow-rose-200 hover:cursor-pointer"
+                    data-movie-title={movie.title}
+                    onClick={dislikeButtonClickHandler}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6" ref={dislikeRef} data-movie-title={movie.title}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 15h2.25m8.024-9.75c.011.05.028.1.052.148.591 1.2.924 2.55.924 3.977a8.96 8.96 0 01-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398C20.613 14.547 19.833 15 19 15h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 00.303-.54m.023-8.25H16.48a4.5 4.5 0 01-1.423-.23l-3.114-1.04a4.5 4.5 0 00-1.423-.23H6.504c-.618 0-1.217.247-1.605.729A11.95 11.95 0 002.25 12c0 .434.023.863.068 1.285C2.427 14.306 3.346 15 4.372 15h3.126c.618 0 .991.724.725 1.282A7.471 7.471 0 007.5 19.5a2.25 2.25 0 002.25 2.25.75.75 0 00.75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 002.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384" />
+                    </svg>
                 </div>
             </div>
         </div>
