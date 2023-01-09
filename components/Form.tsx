@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import io from "socket.io-client";
-
+import io from 'socket.io-client';
 import type { ChangeEvent } from "react";
 import type { Socket } from "socket.io-client";
-import Link from "next/link";
-let socket: Socket | undefined;
+import { socket } from "../context/socket";
+
+let socketLocal: Socket | undefined;
+
 export default function UploadForm() {
   const [input, setInput] = useState("");
   const [message, setMessage] = useState("");
@@ -13,44 +14,49 @@ export default function UploadForm() {
   }, []);
 
   const socketInitializer = async () => {
-    fetch("/api/socket/socket");
-    socket = io();
-    console.log(socket);
-    socket.on("connect", () => {
+    if (socket) {
+      socketLocal = socket;
+    } else {
+      socketLocal = io();
+    }
+    
+    console.log(socketLocal);
+    socketLocal.on("connect", () => {
       console.log("connected");
     });
 
-    socket.on("set-session-acknowledgement", (data) => {
-      sessionStorage.setItem("sessionId", data.sessionId);
-    });
+    // socket.on("set-session-acknowledgement", (data) => {
+    //   sessionStorage.setItem("sessionId", data.sessionId);
+    // });
 
-    socket.on("update-input", (msg) => {
+    socketLocal.on("update-input", (msg) => {
       console.log(`Message received: ${msg}`);
       setMessage(msg);
     });
 
-    socket.on("redirect", (destination) => {
+    socketLocal.on("redirect", (destination) => {
       console.log(`Redirect request received: ${destination}`);
+      console.table(socketLocal);
       window.location.href = destination;
     });
 
-    let session_id;
+    // let session_id;
 
-    let data = sessionStorage.getItem("sessionId");
-    console.log(`Data: ${data}}`);
-    if (data == null) {
-      session_id = null; // connecting for the first time
-      socket.emit("start-session", { sessionId: session_id });
-    } else {
-      session_id = data; // connecting nth time
-      socket.emit("start-session", { sessionId: session_id });
-    }
+    // let data = sessionStorage.getItem("sessionId");
+    // console.log(`Data: ${data}}`);
+    // if (data == null) {
+    //   session_id = null; // connecting for the first time
+    //   socket.emit("start-session", { sessionId: session_id });
+    // } else {
+    //   session_id = data; // connecting nth time
+    //   socket.emit("start-session", { sessionId: session_id });
+    // }
   };
 
   const formSubmitHandler = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (socket != undefined) {
-      socket.emit("create-room", input);
+    if (socketLocal != undefined) {
+      socketLocal.emit("create-room", input);
     }
   };
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {

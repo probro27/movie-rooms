@@ -29,6 +29,17 @@ export default function Home() {
     }
   }
 
+  const onDoubleClickHandler = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    console.log('Video double clicked, time to skip');
+    if(vidRef.current) {
+      // vidRef.current.pause();
+      // vidRef.current.playbackRate = 15;
+      vidRef.current.currentTime = 225;
+      // vidRef.current.play();
+    } 
+  };
+
   return (
     <div className={styles.container}>
       <Head>
@@ -37,15 +48,14 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      <main className={styles.main}>
-        <video className="w-full h-full fixed inset-0 -z-10 grayscale" ref={vidRef} id="background-video" autoPlay muted onEnded={onVideoEnd}>
+      <main className={styles.main} onDoubleClick={onDoubleClickHandler}>
+        <video className="w-full h-full fixed inset-0 -z-10 grayscale" ref={vidRef} id="background-video" autoPlay muted onEnded={onVideoEnd} onDoubleClick={onDoubleClickHandler}>
           <source src='/marvelintroTrimmed.mp4' type='video/mp4'/>
         </video>
         {
           displayForm ?  <Form />: null
         }
       </main>
-      {/* <Client /> */}
     </div>
   )
 }
